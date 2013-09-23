@@ -19,13 +19,21 @@
 
 include_recipe "collectd"
 
-servers = []
-search(:node, 'recipes:"collectd::server"') do |n|
-  servers << n['fqdn']
+# On Chef Solo, we use the node['collectd']['server'] attribute, and on
+# normal Chef, we leverage the search query.
+if Chef::Config[:solo]
+  if node['collectd']['server']
+    collectd_servers = Array(node['collectd']['server'])
+  else
+    Chef::Application.fatal!("Chef Solo does not support search. You must set node['collectd']['server']!")
+  end
+else
+  results = search(:node, node['collectd']['server_search']).map { |n| n['ipaddress'] }
+  collectd_servers = Array(node['collectd']['server']) + Array(results)
 end
 
-if servers.empty?
-  raise "No servers found. Please configure at least one node with collectd::server."
+if collectd_servers.empty?
+  Chef::Application.fatal!('The collectd::client recipe was unable to determine the remote collectd server. Checked both the server attribute and search!')
 end
 
 collectd_plugin "network" do
