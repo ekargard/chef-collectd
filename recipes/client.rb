@@ -37,5 +37,5 @@ if collectd_servers.empty?
 end
 
 collectd_plugin "network" do
-  options :server=>servers
+  options :server=>collectd_servers
 end
