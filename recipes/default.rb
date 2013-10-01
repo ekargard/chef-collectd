@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+# 12.04 CONFIGFILE=/etc/collectd/collectd.conf
+
 package "collectd" do
   #package_name "collectd-core"
   package_name "collectd"
